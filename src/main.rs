@@ -63,6 +63,7 @@ fn main() {
 
 /// Responsible for determining when to render the next frame.
 fn draw(rx: mpsc::Receiver<(u32, u32, u32)>) {
+    let ffont = FIGfont::standand().unwrap();
     let (mut swd, mut sht) = (0, 0);
     let (mut hours, mut mins, mut secs) = (0, 0, 0);
 
@@ -84,17 +85,16 @@ fn draw(rx: mpsc::Receiver<(u32, u32, u32)>) {
         }
 
         if should_render {
-            render(wd, ht, hours, mins, secs);
+            render(&ffont, wd, ht, hours, mins, secs);
         }
         thread::sleep(time::Duration::from_millis(250));
     }
 }
 
 /// Responsible for rendering time to terminal
-fn render(wd: usize, ht: usize, hours: u32, mins: u32, secs: u32) {
-    let ffont = FIGfont::standand().unwrap();
+fn render(fig_font: &FIGfont, wd: usize, ht: usize, hours: u32, mins: u32, secs: u32) {
 
-    if let Some(msg) = ffont.convert(format!("{:02}:{:02}:{:02}", hours, mins, secs).as_str()) {
+    if let Some(msg) = fig_font.convert(format!("{:02}:{:02}:{:02}", hours, mins, secs).as_str()) {
         let mut m_w = msg.to_string().lines().map(|s| s.len()).max().unwrap_or(1);
         let mut m_h = msg.height as usize;
         if m_w > wd || m_h > ht {
